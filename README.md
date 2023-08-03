@@ -103,6 +103,7 @@ val scope = CoroutineScope(Dispatchers.IO)
 ```
 
 `logs`
+```
 D  coroutine 0, start. [DefaultDispatcher-worker-1]
 D  coroutine 1, start. [DefaultDispatcher-worker-2]
 D  coroutine 2, start. [DefaultDispatcher-worker-6]
@@ -115,7 +116,7 @@ D  coroutine 2, end. [DefaultDispatcher-worker-1]
 D  coroutine 3, end. [DefaultDispatcher-worker-9]
 D  coroutine 5, end. [DefaultDispatcher-worker-6]
 D  coroutine 4, end. [DefaultDispatcher-worker-5]
-
+```
 `Все корутины работали одновременно и никому не пришлось ждать.`
 
 
@@ -160,6 +161,7 @@ val scope = CoroutineScope(
 Корутины выполнятся последовательно.
 
 `log`
+```
 D  coroutine 0, start. [pool-2-thread-1]
 D  coroutine 1, start. [pool-2-thread-1]
 D  coroutine 2, start. [pool-2-thread-1]
@@ -172,6 +174,7 @@ D  coroutine 2, end [pool-2-thread-1]
 D  coroutine 3, end [pool-2-thread-1]
 D  coroutine 4, end [pool-2-thread-1]
 D  coroutine 5, end [pool-2-thread-1]
+```
 
 ### Main
 
