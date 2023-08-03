@@ -1,0 +1,5 @@
+
+Coroutine - это не какой-то конкретный объект.
+    Это набор объектов, которые взаимодействуют друг с другом.
+
+    Объекты: Job, Continuation, Context, Dispatcher и CoroutineScope

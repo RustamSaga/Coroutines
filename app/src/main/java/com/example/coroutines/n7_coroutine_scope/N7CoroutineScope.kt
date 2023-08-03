@@ -16,12 +16,12 @@ import kotlinx.coroutines.launch
  */
 
 const val TAG = "scope"
-fun n1coroutineScope() {
+fun n7coroutineScope() {
+
     /**
      * Scope объект можно создать самостоятельно.
      * Мы будем определять, когда следует отменять его и все его корутины.
      */
-
     val scope = CoroutineScope(Job())
 
     scope.launch {
@@ -48,14 +48,25 @@ fun n1coroutineScope() {
         При вызове scope.cansel() отменяются все подписанные на него Job-ы корутин.
         Соответственно, если не вызвать scope.cancel, то корутины этого scope не отменятся.
         Поэтому не теряйте этот вызов, если вам необходимо отменять корутины.
+
+        - отмена одной корутины - job.cancel()
+        - отмена всех корутин, которые были вызваны этим scope - scope.cancel()
      */
 
+
+    /**
+        Т.е. в родительской корутине существует свой scope. И это не тот же самый scope,
+        который мы использовали для запуска этой родительской корутины. Каждая корутина
+        создает внутри себя свой scope, чтобы иметь возможность запускать дочерние корутины.
+        Именно этот scope и доступен нам как this в блоке кода корутины.
+    */
     scope.launch {
         // parent coroutine code block
         this.launch {
             // child coroutine code block
         }
     }
+
     // or
     scope.launch {
         // parent coroutine code block
@@ -63,6 +74,7 @@ fun n1coroutineScope() {
             // child coroutine code block
         }
     }
+
 
 
     /**
