@@ -59,9 +59,9 @@ class ParentJob {
             Как ведет себя родительская корутина
 
 1. Если завершается позже дочерней корутины, используя `launch`
-   !(imageres/first .jpeg)
+   ![]https://github.com/RustamSaga/Coroutines/blob/master/imageres/first%20.jpeg
 2. Если завершается раньше дочерней корутины, используя `launch`
-   !(imageres/second.jpeg)
+   ![]https://github.com/RustamSaga/Coroutines/blob/master/imageres/second.jpeg
 3. Если у радительской более одной дочерней корутины, используя `launch`
     * Оно представляет собой смесь первого и второго сценария.
     * Каждая корутина создает свою отдельную связь с родительской `ChildHandleNode`, и обе начинают
