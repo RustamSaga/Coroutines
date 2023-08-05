@@ -1,4 +1,3 @@
-
 # Связь между родительской и дочерней корутиной
 
 1. создание context'а дочерней корутины
@@ -6,7 +5,7 @@
 3. создание связи с родительской корутиной
 4. запуск дочерней корутины (создание Continuation и его отправка в диспетчер)
 
-### 1. Создание context'а дочерней корутины
+### 1-2. Создание context'а дочерней корутины & создание job'а дочерней корутины
 
     У нас есть родительская корутина у которой есть context - назовем `parentContex`
     Также есть launch, в нее тоже передается контекст - назавем `launchContext`
@@ -16,7 +15,6 @@
 
 1. К `parentContext` добавляется `launchContext`, если в `launchContext` был `dispatcher` то он же
    остается. Получившийся контекст назовем `newContext`.
-
 2. Если в `newContext` нет диспетчера, то в него добавляется диспетчер по умолчанию.
 3. Создается `job` (можно назвать также `CoroutineScope`) дочерней корутины. Контекст `newContext`
    передается в его конструктор
@@ -27,7 +25,29 @@
 там хранится и `newContext`. Он содержит `Job` родителя, который **понадобится** при создании связи
 с родительской корутиной.
 
-### 2. Создание job'а дочерней корутины
+ Как бы так:
+
+```kotlin
+fun builder(launchContext: CoroutineContext) {
+   val newContext = parentContext.createNewContext(launchContext)
+
+   val childJob = ChildJob(newContext)
+}
+
+fun CoroutineContext.createNewContext(launchContext: CoroutineContext): NewContext {
+   return if (launchContext.isContainDispatcher) {
+      NewContext(launchContext.dispatcher)
+   } else {
+      NewContext(DefaultDispatcher)
+   }
+}
+```
+
+```kotlin
+class ChildJob(newContext: CoroutineContext) : CoroutineScope {
+    val childContext = newContext.addJob(this)
+}
+```
 
 ### 3. Создание связи с родительской корутиной
 
@@ -67,6 +87,38 @@ class ParentJob {
     * Каждая корутина создает свою отдельную связь с родительской `ChildHandleNode`, и обе начинают
       выполнять свой код.
 
-4.
+4. Родительская корутина использует launch(start = CoroutineStart.LAZY) для создания дочерней
+   корутины. Но не запускает ее.
+    * Если не запустить `job.start` тогда родительская корутина не завершится. Т.к связь не будет
+      разоравана
+    * Также если родитель является дочерней корутиной, в которой вызван метод join - тогда код
+      корутины ни когда не завершиться
+```kotlin
+   // эта корутина не завершитсья
+   scope.launch {
+      val job = launch {
+            val job2 = launch(start = CoroutineStart.LAZY) {
+                // code
+            }        
+            // code
+      }
+      job.join()
+        // code
+   }
+```
+   
+5. Родительская корутина использует async для запуска дочерней корутины.
+```
+Если результата нужно ждать:
+Этот случай интереснее. await - это suspend функция. Она приостанавливает выполнение кода 
+родительской корутины, получает его Continuation, упаковывает Continuation в объект 
+ResumeAwaitOnCompletion и подписывает этот объект на завершение дочерней корутины.
+
+Когда дочерняя корутина завершает выполнение своего кода, она находит объект ResumeAwaitOnCompletion
+и передает ему результат своей работы. ResumeAwaitOnCompletion возобновляет выполнение родительского 
+Continuation и передает ему результат. Таким образом возобновляется выполнение кода в родительской корутине.
+```
+
+![](https://github.com/RustamSaga/Coroutines/blob/master/imageres/third.jpeg)
 
 ### 4. Запуск дочерней корутины
