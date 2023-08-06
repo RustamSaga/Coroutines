@@ -1,5 +1,7 @@
 # Coroutine
 
+// ссылки на readme по темам
+
 ## Scope
 
 `CoroutineScope` - это то, что позволяет запустить корутину, `scope` бывают разные,
