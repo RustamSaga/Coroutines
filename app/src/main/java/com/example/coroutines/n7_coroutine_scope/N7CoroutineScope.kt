@@ -2,18 +2,9 @@ package com.example.coroutines.n7_coroutine_scope
 
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-
-/**
- *  Scope - объект без которого корутину не запустить.
- *  scope - это родитель для всех корутин. Когда мы отменяем scope,
- *          мы отменяем все его дочерние корутины.
- *
- *  Scope нужен для создания класса Job(который будет родителем), чтобы создать корутину.
- *          Он (в своем контексте) содержит Job. Этот Job будет являться родителем
- *          для Job-ов корутин, которые мы создаем, вызывая scope.launch.
- */
 
 const val TAG = "scope"
 fun n7coroutineScope() {
@@ -23,6 +14,9 @@ fun n7coroutineScope() {
      * Мы будем определять, когда следует отменять его и все его корутины.
      */
     val scope = CoroutineScope(Job())
+    val scope2 = CoroutineScope(Dispatchers.Default)
+    val scope1 = CoroutineScope(Job() + Dispatchers.Default)
+    val scope3 = CoroutineScope(Job())
 
     scope.launch {
         Log.d(TAG, "first coroutine")
@@ -36,30 +30,7 @@ fun n7coroutineScope() {
         Log.d(TAG, "third coroutine")
     }
 
-    /**
-        Эти корутины только выводят лог и сами завершаются очень быстро.
-        Но если бы там выполнялась долгая работа, то scope помог бы нам ограничить
-        время жизни этих корутин. Например, мы решаем, что при закрытии экрана все
-        корутины должны отмениться. Для этого помещаем вызов scope.cancel в метод Activity.onDestroy
-            override fun onDestroy() {
-                super.onDestroy()
-                scope.cancel()
-            }
-        При вызове scope.cansel() отменяются все подписанные на него Job-ы корутин.
-        Соответственно, если не вызвать scope.cancel, то корутины этого scope не отменятся.
-        Поэтому не теряйте этот вызов, если вам необходимо отменять корутины.
 
-        - отмена одной корутины - job.cancel()
-        - отмена всех корутин, которые были вызваны этим scope - scope.cancel()
-     */
-
-
-    /**
-        Т.е. в родительской корутине существует свой scope. И это не тот же самый scope,
-        который мы использовали для запуска этой родительской корутины. Каждая корутина
-        создает внутри себя свой scope, чтобы иметь возможность запускать дочерние корутины.
-        Именно этот scope и доступен нам как this в блоке кода корутины.
-    */
     scope.launch {
         // parent coroutine code block
         this.launch {
