@@ -101,6 +101,32 @@ val flow = channelFlow {
 канал закрыт, т.е. что мы не забыли вызвать `awaitClose` в корутине. Если мы забудем, то сразу же
 получим ошибку. А в channelFlow мы получим ошибку, только когда колбэк решит что-нить отправить.
 
+```kotlin
+fun flowFrom(api: CallbackBasedApi): Flow<T> = callbackFlow {
+    val callback = object : Callback { // Implementation of some callback interface
+        override fun onNextValue(value: T) {
+            // To avoid blocking you can configure channel capacity using
+            // either buffer(Channel.CONFLATED) or buffer(Channel.UNLIMITED) to avoid overfill
+            trySendBlocking(value)
+                .onFailure { throwable ->
+                    // Downstream has been cancelled or failed, can log here
+                }
+        }
+        override fun onApiError(cause: Throwable) {
+            cancel(CancellationException("API Error", cause))
+        }
+        override fun onCompleted() = channel.close()
+    }
+    api.register(callback)
+    /*
+     * Suspends until either 'onCompleted'/'onApiError' from the callback is invoked
+     * or flow collector is cancelled (e.g. by 'take(1)' or because a collector's coroutine was cancelled).
+     * In both cases, callback will be properly unregistered.
+     */
+        awaitClose { api.unregister(callback) }
+    }
+```
+
 [Подробнее]()
 
 ## flowOn (задает контекст и запускает flow)

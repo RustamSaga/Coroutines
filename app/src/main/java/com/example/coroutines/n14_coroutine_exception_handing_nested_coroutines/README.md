@@ -125,6 +125,7 @@ supervisorJob > childJob
 А это уже нарушение принципа structured concurrency и связи между корутинами.
 
 ```kotlin
+// don't do this 
 scope.launch { // parent coroutine
     launch(SupervisorJob()) { // child coroutine
 

@@ -140,4 +140,23 @@ scope.launch {
 ```
 
 ## Lazy
-`async` корутину также можно запускать в режиме `Lazy`. Метод `await` стартует ее выполнение.
+`async` корутину также можно запускать в режиме `Lazy`. Метод `await` стартует ее выполнение, или 
+`start` - чтобы просто запустить, и выполнить код до метода `await`.
+
+```kotlin
+suspend fun main() = coroutineScope{
+ 
+    // корутина создана, но не запущена
+    val sum = async(start = CoroutineStart.LAZY){ sum(1, 2)}
+ 
+    delay(1000L)
+    println("Actions after the coroutine creation")
+    sum.start()                      // запуск корутины
+    // some code
+    println("sum: ${sum.await()}")   // получаем результат
+}
+fun sum(a: Int, b: Int) : Int{
+    println("Coroutine has started")
+    return a + b
+}
+```
